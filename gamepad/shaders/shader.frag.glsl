@@ -16,17 +16,20 @@ vec2 button_pos[MAX_BUTTONS] =
     {  0.40,  0.15 },
     { -0.75,  0.15 }, // Triggers
     {  0.75,  0.15 },
-    { -0.75,  0.27 },
-    {  0.75,  0.27 },
-    { -0.10,  0.11 }, // Start/pause
-    {  0.10,  0.11 },
-    { -0.24, -0.21 }, // Thumbs
-    {  0.24, -0.21 },
+    { -0.75,  0.24 },
+    {  0.75,  0.24 },
+    { -0.10,  0.15 }, // Start/pause
+    {  0.10,  0.15 },
+    { -0.20, -0.18 }, // Thumbs
+    {  0.20, -0.18 },
     { -0.40,  0.15 }, // D-pad
     { -0.40, -0.05 },
     { -0.50,  0.05 },
     { -0.30,  0.05 },
 };
+
+int round_buttons = 0x0c0f;
+int flat_buttons = 0x0330;
 
 //
 // Transforms
@@ -104,8 +107,8 @@ void main()
     sdf = merge(circle(translate(p, (button_pos[12] + button_pos[13]) * 0.5), 0.24), sdf, 0.03);
     sdf = merge(circle(translate(p, button_pos[10]), 0.14), sdf, 0.03);
     sdf = merge(circle(translate(p, button_pos[11]), 0.14), sdf, 0.03);
-    sdf = min(box(translate(p, (button_pos[4] + button_pos[6]) * 0.5), vec2(0.07, 0.14)), sdf);
-    sdf = min(box(translate(p, (button_pos[5] + button_pos[7]) * 0.5), vec2(0.07, 0.14)), sdf);
+    sdf = min(box(translate(p, mix(button_pos[4], button_pos[6], 2./3)), vec2(0.07, 0.105)), sdf);
+    sdf = min(box(translate(p, mix(button_pos[5], button_pos[7], 2./3)), vec2(0.07, 0.105)), sdf);
     color = blend(color, white, sdf);
     color = blend(color, black, outline(sdf, width));
 
@@ -124,8 +127,10 @@ void main()
             pos += d;
         }
 
-        if ((i & 4) == 0)
+        if ((round_buttons & (1 << i)) != 0)
             sdf = circle(translate(p, pos), 0.05);
+        else if ((flat_buttons & (1 << i)) != 0)
+            sdf = box(translate(p, pos), vec2(0.04, 0.02));
         else
             sdf = box(translate(p, pos), vec2(0.04));
         color = blend(color, (buttons & (1 << i)) != 0 ? green : red, sdf);
