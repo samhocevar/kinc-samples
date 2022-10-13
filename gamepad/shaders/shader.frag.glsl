@@ -10,22 +10,22 @@ uniform int buttons;
 
 vec2 button_pos[MAX_BUTTONS] =
 {
-    {  0.20, 0.00 }, // ABXY
-    {  0.25, 0.05 },
-    {  0.15, 0.05 },
-    {  0.20, 0.10 },
-    { -0.38, 0.10 }, // Triggers
-    {  0.38, 0.10 },
-    { -0.38, 0.16 },
-    {  0.38, 0.16 },
-    { -0.05, 0.08 }, // Start/pause
-    {  0.05, 0.08 },
-    { -0.12, -0.08 }, // Thumbs
-    {  0.12, -0.08 },
-    { -0.20, 0.10 }, // D-pad
-    { -0.20, 0.00 },
-    { -0.25, 0.05 },
-    { -0.15, 0.05 },
+    {  0.40, -0.05 }, // ABXY
+    {  0.50,  0.05 },
+    {  0.30,  0.05 },
+    {  0.40,  0.15 },
+    { -0.75,  0.15 }, // Triggers
+    {  0.75,  0.15 },
+    { -0.75,  0.27 },
+    {  0.75,  0.27 },
+    { -0.10,  0.11 }, // Start/pause
+    {  0.10,  0.11 },
+    { -0.24, -0.21 }, // Thumbs
+    {  0.24, -0.21 },
+    { -0.40,  0.15 }, // D-pad
+    { -0.40, -0.05 },
+    { -0.50,  0.05 },
+    { -0.30,  0.05 },
 };
 
 //
@@ -93,19 +93,19 @@ void main()
 {
     vec2 p = (pass_uv - vec2(0.5)) * vec2(RATIO, 1.0);
 
-    float width = 0.002;
+    float width = 0.004;
     float sdf;
 
     vec4 color = vec4(0.);
 
     // Draw gamepad
-    sdf = box(translate(p, vec2(0.0, 0.05)), vec2(0.2, 0.10));
-    sdf = merge(circle(translate(p, (button_pos[0] + button_pos[3]) * 0.5), 0.12), sdf, 0.03);
-    sdf = merge(circle(translate(p, (button_pos[12] + button_pos[13]) * 0.5), 0.12), sdf, 0.03);
-    sdf = merge(circle(translate(p, button_pos[10]), 0.07), sdf, 0.03);
-    sdf = merge(circle(translate(p, button_pos[11]), 0.07), sdf, 0.03);
-    sdf = min(box(translate(p, (button_pos[4] + button_pos[6]) * 0.5), vec2(0.035, 0.07)), sdf);
-    sdf = min(box(translate(p, (button_pos[5] + button_pos[7]) * 0.5), vec2(0.035, 0.07)), sdf);
+    sdf = box(translate(p, vec2(0.0, button_pos[1].y)), vec2(0.40, 0.20));
+    sdf = merge(circle(translate(p, (button_pos[0] + button_pos[3]) * 0.5), 0.24), sdf, 0.03);
+    sdf = merge(circle(translate(p, (button_pos[12] + button_pos[13]) * 0.5), 0.24), sdf, 0.03);
+    sdf = merge(circle(translate(p, button_pos[10]), 0.14), sdf, 0.03);
+    sdf = merge(circle(translate(p, button_pos[11]), 0.14), sdf, 0.03);
+    sdf = min(box(translate(p, (button_pos[4] + button_pos[6]) * 0.5), vec2(0.07, 0.14)), sdf);
+    sdf = min(box(translate(p, (button_pos[5] + button_pos[7]) * 0.5), vec2(0.07, 0.14)), sdf);
     color = blend(color, white, sdf);
     color = blend(color, black, outline(sdf, width));
 
@@ -116,18 +116,18 @@ void main()
         if (i == 10 || i == 11)
         {
             // Draw axes for thumbs, and shift button position
-            sdf = outline(circle(translate(p, pos), 0.04), width);
+            sdf = outline(circle(translate(p, pos), 0.08), width);
             color = blend(color, black, sdf);
-            vec2 d = 0.05 * vec2(axes[(i - 10) * 2], axes[(i - 10) * 2 + 1]);
+            vec2 d = 0.1 * vec2(axes[(i - 10) * 2], axes[(i - 10) * 2 + 1]);
             sdf = segment(p, pos, pos + d, width);
             color = blend(color, black, sdf);
             pos += d;
         }
 
         if ((i & 4) == 0)
-            sdf = circle(translate(p, pos), 0.025);
+            sdf = circle(translate(p, pos), 0.05);
         else
-            sdf = box(translate(p, pos), vec2(0.02));
+            sdf = box(translate(p, pos), vec2(0.04));
         color = blend(color, (buttons & (1 << i)) != 0 ? green : red, sdf);
         color = blend(color, black, outline(sdf, width));
     }

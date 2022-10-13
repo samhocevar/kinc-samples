@@ -72,7 +72,7 @@ static void update(void)
 
 int kickstart(int argc, char **argv)
 {
-    kinc_init("Gamepad", 1280, 720, NULL, NULL);
+    kinc_init("Gamepad", 640, 360, NULL, NULL);
     kinc_set_update_callback(update);
 
     kinc_g4_vertex_structure_init(&structure);
