@@ -9,8 +9,9 @@
 #include <kinc/io/filereader.h>
 #include <kinc/system.h>
 
-#include <string.h>
 #include <math.h>
+
+#include "../../common/shader.h"
 
 static kinc_g4_pipeline_t pipeline;
 static kinc_g4_shader_t vertex_shader;
@@ -24,18 +25,6 @@ static kinc_g4_vertex_buffer_t vertices;
 
 static kinc_g4_texture_t image;
 static kinc_g4_texture_t palette;
-
-static void load_shader(const char *filename, kinc_g4_shader_t *shader, kinc_g4_shader_type_t shader_type)
-{
-    kinc_file_reader_t file;
-    kinc_file_reader_open(&file, filename, KINC_FILE_TYPE_ASSET);
-    size_t data_size = kinc_file_reader_size(&file);
-    uint8_t *data = malloc(data_size);
-    kinc_file_reader_read(&file, data, data_size);
-    kinc_file_reader_close(&file);
-    kinc_g4_shader_init(shader, data, data_size, shader_type);
-    free(data);
-}
 
 static void update(void)
 {
@@ -89,8 +78,8 @@ int kickstart(int argc, char **argv)
     kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2X);
     kinc_g4_vertex_structure_add(&structure, "uv", KINC_G4_VERTEX_DATA_F32_2X);
 
-    load_shader("shader.vert", &vertex_shader, KINC_G4_SHADER_TYPE_VERTEX);
-    load_shader("shader.frag", &fragment_shader, KINC_G4_SHADER_TYPE_FRAGMENT);
+    sample_load_shader("shader.vert", &vertex_shader, KINC_G4_SHADER_TYPE_VERTEX);
+    sample_load_shader("shader.frag", &fragment_shader, KINC_G4_SHADER_TYPE_FRAGMENT);
 
     kinc_g4_pipeline_init(&pipeline);
     pipeline.vertex_shader = &vertex_shader;
