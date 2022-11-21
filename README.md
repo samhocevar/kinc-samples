@@ -10,9 +10,9 @@ They have all been tested on the following platforms:
  - Xbox Series S|X
  - Nintendo Switch
 
-## `two-textures`
+## `plasma`
 
-<img src="https://github.com/samhocevar/kinc-samples/raw/main/two-textures.png" height="320"/>
+<img src="https://github.com/samhocevar/kinc-samples/raw/main/plasma.png" height="320"/>
 
 A simple plasma effect.
 

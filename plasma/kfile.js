@@ -1,4 +1,4 @@
-const project = new Project('two-textures');
+const project = new Project('plasma');
 
 await project.addProject('../../kinc/');
 
