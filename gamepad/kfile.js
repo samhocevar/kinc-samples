@@ -2,8 +2,8 @@ const project = new Project('gamepad');
 
 await project.addProject('../../kinc/');
 
-project.addFile('src/**');
-project.addFile('shaders/**');
+project.addFile('*.c');
+project.addFile('*.glsl');
 project.setDebugDir('deployment');
 
 project.flatten();

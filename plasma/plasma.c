@@ -11,7 +11,7 @@
 
 #include <math.h>
 
-#include "../../common/shader.h"
+#include "../common/shader.h"
 
 static kinc_g4_pipeline_t pipeline;
 static kinc_g4_shader_t vertex_shader;
@@ -78,8 +78,8 @@ int kickstart(int argc, char **argv)
     kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2X);
     kinc_g4_vertex_structure_add(&structure, "uv", KINC_G4_VERTEX_DATA_F32_2X);
 
-    sample_load_shader("shader.vert", &vertex_shader, KINC_G4_SHADER_TYPE_VERTEX);
-    sample_load_shader("shader.frag", &fragment_shader, KINC_G4_SHADER_TYPE_FRAGMENT);
+    sample_load_shader("plasma.vert", &vertex_shader, KINC_G4_SHADER_TYPE_VERTEX);
+    sample_load_shader("plasma.frag", &fragment_shader, KINC_G4_SHADER_TYPE_FRAGMENT);
 
     kinc_g4_pipeline_init(&pipeline);
     pipeline.vertex_shader = &vertex_shader;

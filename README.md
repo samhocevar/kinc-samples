@@ -14,7 +14,7 @@ They have all been tested on the following platforms:
 
 <img src="https://github.com/samhocevar/kinc-samples/raw/main/plasma.png" height="320"/>
 
-A simple plasma effect.
+A simple plasma effect. Uses old-school palette rotation.
 
 Tests the following features:
  - referencing two texture units in the same shader
@@ -27,7 +27,7 @@ Tests the following features:
 
 <img src="https://github.com/samhocevar/kinc-samples/raw/main/gamepad.png" height="320"/>
 
-A visualiser for gamepad state.
+A visualiser for gamepad state. Uses SDF 2D vector rendering.
 
 Tests the following features:
  - up to 16 gamepad buttons
