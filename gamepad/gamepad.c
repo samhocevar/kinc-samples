@@ -39,7 +39,7 @@ static void button_callback(int gamepad, int button, float value)
     buttons = (buttons & ~bit) | (value ? bit : 0);
 }
 
-static void update(void)
+static void update(void *data)
 {
     kinc_g4_begin(0);
     kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xFFFF8000, 0.0f, 0);
@@ -62,7 +62,7 @@ static void update(void)
 int kickstart(int argc, char **argv)
 {
     kinc_init("Gamepad", 1280, 720, NULL, NULL);
-    kinc_set_update_callback(update);
+    kinc_set_update_callback(update, NULL);
 
     kinc_g4_vertex_structure_init(&structure);
     kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2X);
@@ -92,11 +92,12 @@ int kickstart(int argc, char **argv)
     kinc_g4_vertex_buffer_unlock_all(&vertices);
 
     // Index buffer
-    kinc_g4_index_buffer_init(&indices, 6, KINC_G4_INDEX_BUFFER_FORMAT_16BIT, KINC_G4_USAGE_STATIC);
     uint16_t index_data[] = { 0, 1, 2, 2, 3, 0 };
-    uint16_t *index = (uint16_t *)kinc_g4_index_buffer_lock(&indices);
+    uint16_t index_len = sizeof(index_data) / sizeof(*index_data);
+    kinc_g4_index_buffer_init(&indices, index_len, KINC_G4_INDEX_BUFFER_FORMAT_16BIT, KINC_G4_USAGE_STATIC);
+    uint16_t *index = (uint16_t *)kinc_g4_index_buffer_lock(&indices, 0, index_len);
     memcpy(index, index_data, sizeof(index_data));
-    kinc_g4_index_buffer_unlock(&indices);
+    kinc_g4_index_buffer_unlock(&indices, index_len);
 
     kinc_gamepad_set_axis_callback(axis_callback);
     kinc_gamepad_set_button_callback(button_callback);

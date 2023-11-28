@@ -26,7 +26,7 @@ static kinc_g4_vertex_buffer_t vertices;
 static kinc_g4_texture_t image;
 static kinc_g4_texture_t palette;
 
-static void update(void)
+static void update(void *data)
 {
     kinc_g4_begin(0);
     kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xFF008080, 0.0f, 0);
@@ -72,7 +72,7 @@ static void update(void)
 int kickstart(int argc, char **argv)
 {
     kinc_init("Plasma", 1280, 720, NULL, NULL);
-    kinc_set_update_callback(update);
+    kinc_set_update_callback(update, NULL);
 
     kinc_g4_vertex_structure_init(&structure);
     kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2X);
@@ -101,9 +101,10 @@ int kickstart(int argc, char **argv)
     // Index buffer
     kinc_g4_index_buffer_init(&indices, 6, KINC_G4_INDEX_BUFFER_FORMAT_16BIT, KINC_G4_USAGE_STATIC);
     uint16_t index_data[] = { 0, 1, 2, 2, 3, 0 };
-    uint16_t *index = (uint16_t *)kinc_g4_index_buffer_lock(&indices);
+    uint16_t index_len = sizeof(index_data) / sizeof(*index_data);
+    uint16_t *index = (uint16_t *)kinc_g4_index_buffer_lock(&indices, 0, index_len);
     memcpy(index, index_data, sizeof(index_data));
-    kinc_g4_index_buffer_unlock(&indices);
+    kinc_g4_index_buffer_unlock(&indices, index_len);
 
     // Generate grayscale image
     kinc_g4_texture_init(&image, 320, 180, KINC_IMAGE_FORMAT_GREY8);

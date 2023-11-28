@@ -37,18 +37,20 @@ static void bind_texture(void)
     kinc_g4_set_texture_magnification_filter(image_unit, KINC_G4_TEXTURE_FILTER_LINEAR);
 }
 
-static void update(void)
+static void update(void *data)
 {
     kinc_g4_begin(0);
     kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xFF008080, 0.0f, 0);
 
     kinc_g4_set_pipeline(&pipeline);
 
+    // On even frames, only bind the texture once
     if ((int)kinc_time() % 2 == 0)
         bind_texture();
 
     for (int n = 0; n < 4; ++n)
     {
+        // On odd frames, bind the texture once per quad
         if ((int)kinc_time() % 2 == 1)
             bind_texture();
 
@@ -69,7 +71,7 @@ int kickstart(int argc, char **argv)
 {
     kinc_init("Starfield", 1280, 720, NULL, NULL);
     kinc_random_init(0);
-    kinc_set_update_callback(update);
+    kinc_set_update_callback(update, NULL);
 
     kinc_g4_vertex_structure_init(&structure);
     kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2X);
@@ -98,9 +100,10 @@ int kickstart(int argc, char **argv)
     // Index buffer
     kinc_g4_index_buffer_init(&indices, 6, KINC_G4_INDEX_BUFFER_FORMAT_16BIT, KINC_G4_USAGE_STATIC);
     uint16_t index_data[] = { 0, 1, 2, 2, 3, 0 };
-    uint16_t *index = (uint16_t *)kinc_g4_index_buffer_lock(&indices);
+    uint16_t index_len = sizeof(index_data) / sizeof(*index_data);
+    uint16_t *index = (uint16_t *)kinc_g4_index_buffer_lock(&indices, 0, index_len);
     memcpy(index, index_data, sizeof(index_data));
-    kinc_g4_index_buffer_unlock(&indices);
+    kinc_g4_index_buffer_unlock(&indices, index_len);
 
     // Generate starfield image
     kinc_g4_texture_init(&image, 320, 180, KINC_IMAGE_FORMAT_GREY8);
@@ -108,9 +111,7 @@ int kickstart(int argc, char **argv)
     int stride = kinc_g4_texture_stride(&image);
     for (int n = 0; n < 500; ++n)
     {
-        int x = kinc_random_get_max(320), y = kinc_random_get_max(180);
-        //int x = kinc_random_get_max(160), y = kinc_random_get_max(90);
-        //x += kinc_random_get_max(160), y += kinc_random_get_max(90);
+        int x = kinc_random_get_in(0, 320), y = kinc_random_get_in(0, 180);
         pixels[y * stride + x] = kinc_random_get_in(128, 255);
     }
     kinc_g4_texture_unlock(&image);
