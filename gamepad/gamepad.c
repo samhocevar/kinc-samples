@@ -24,39 +24,47 @@ static kinc_g4_vertex_structure_t structure;
 static kinc_g4_index_buffer_t indices;
 static kinc_g4_vertex_buffer_t vertices;
 
+#define MAX_GAMEPADS 8
+#define MAX_AXES 4
+
 typedef struct state
 {
-    float axes[4];
-    int32_t buttons;
+    int current;
+
+    struct
+    {
+        float axes[MAX_AXES];
+        int32_t buttons;
+    }
+    gamepads[MAX_GAMEPADS];
 }
 state_t;
 
 static void axis_callback(int gamepad, int axis, float value, void *userdata)
 {
     state_t *s = (state_t *)userdata;
-    if (axis >= 0 && axis < 4)
-        s->axes[axis] = value;
+    if (gamepad >= 0 && gamepad < MAX_GAMEPADS && axis >= 0 && axis < MAX_AXES)
+        s->gamepads[gamepad].axes[axis] = value;
 }
 
 static void button_callback(int gamepad, int button, float value, void *userdata)
 {
     state_t *s = (state_t *)userdata;
-    int bit = 1 << button;
-    s->buttons = (s->buttons & ~bit) | (value ? bit : 0);
+    if (gamepad >= 0 && gamepad < MAX_GAMEPADS)
+    {
+        int bit = 1 << button;
+        s->gamepads[gamepad].buttons = (s->gamepads[gamepad].buttons & ~bit) | (value ? bit : 0);
+        // Change the currently rendered gamepad
+        s->current = gamepad;
+    }
 }
 
 static void key_down_callback(int code, void *userdata)
 {
-    state_t *s = (state_t *)userdata;
-    int bit = code >= KINC_KEY_A && code <= KINC_KEY_Z ? 1 << (code - KINC_KEY_A) : 0;
-    s->buttons |= bit;
 }
 
 static void key_up_callback(int code, void *userdata)
 {
-    state_t *s = (state_t *)userdata;
-    int bit = code >= KINC_KEY_A && code <= KINC_KEY_Z ? 1 << (code - KINC_KEY_A) : 0;
-    s->buttons &= ~bit;
 }
 
 static void update(void *userdata)
@@ -69,8 +77,8 @@ static void update(void *userdata)
     kinc_g4_set_pipeline(&pipeline);
 
     // Upload gamepad state to shader
-    kinc_g4_set_floats(axes_loc, s->axes, 4);
-    kinc_g4_set_int(buttons_loc, s->buttons);
+    kinc_g4_set_floats(axes_loc, s->gamepads[s->current].axes, 4);
+    kinc_g4_set_int(buttons_loc, s->gamepads[s->current].buttons);
 
     // Render a fullscreen quad
     kinc_g4_set_vertex_buffer(&vertices);
@@ -83,7 +91,7 @@ static void update(void *userdata)
 
 int kickstart(int argc, char **argv)
 {
-    state_t state;
+    state_t state = { 0 };
 
     kinc_init("Gamepad", 1280, 720, NULL, NULL);
     kinc_set_update_callback(update, &state);
