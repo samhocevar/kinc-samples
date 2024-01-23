@@ -7,6 +7,7 @@
 
 #include <kinc/io/filereader.h>
 #include <kinc/input/gamepad.h>
+#include <kinc/input/keyboard.h>
 #include <kinc/log.h>
 #include <kinc/system.h>
 
@@ -24,31 +25,53 @@ static kinc_g4_vertex_structure_t structure;
 static kinc_g4_index_buffer_t indices;
 static kinc_g4_vertex_buffer_t vertices;
 
-float axes[4];
-int32_t buttons;
-
-static void axis_callback(int gamepad, int axis, float value)
+typedef struct state
 {
+    float axes[4];
+    int32_t buttons;
+}
+state_t;
+
+static void axis_callback(int gamepad, int axis, float value, void *userdata)
+{
+    state_t *s = (state_t *)userdata;
     if (axis >= 0 && axis < 4)
-        axes[axis] = value;
+        s->axes[axis] = value;
 }
 
-static void button_callback(int gamepad, int button, float value)
+static void button_callback(int gamepad, int button, float value, void *userdata)
 {
+    state_t *s = (state_t *)userdata;
     int bit = 1 << button;
-    buttons = (buttons & ~bit) | (value ? bit : 0);
+    s->buttons = (s->buttons & ~bit) | (value ? bit : 0);
 }
 
-static void update(void *data)
+static void key_down_callback(int code, void *userdata)
 {
+    state_t *s = (state_t *)userdata;
+    int bit = code >= KINC_KEY_A && code <= KINC_KEY_Z ? 1 << (code - KINC_KEY_A) : 0;
+    s->buttons |= bit;
+}
+
+static void key_up_callback(int code, void *userdata)
+{
+    state_t *s = (state_t *)userdata;
+    int bit = code >= KINC_KEY_A && code <= KINC_KEY_Z ? 1 << (code - KINC_KEY_A) : 0;
+    s->buttons &= ~bit;
+}
+
+static void update(void *userdata)
+{
+    state_t *s = (state_t *)userdata;
+
     kinc_g4_begin(0);
     kinc_g4_clear(KINC_G4_CLEAR_COLOR, 0xFFFF8000, 0.0f, 0);
 
     kinc_g4_set_pipeline(&pipeline);
 
     // Upload gamepad state to shader
-    kinc_g4_set_floats(axes_loc, axes, 4);
-    kinc_g4_set_int(buttons_loc, buttons);
+    kinc_g4_set_floats(axes_loc, s->axes, 4);
+    kinc_g4_set_int(buttons_loc, s->buttons);
 
     // Render a fullscreen quad
     kinc_g4_set_vertex_buffer(&vertices);
@@ -61,8 +84,10 @@ static void update(void *data)
 
 int kickstart(int argc, char **argv)
 {
+    state_t state;
+
     kinc_init("Gamepad", 1280, 720, NULL, NULL);
-    kinc_set_update_callback(update, NULL);
+    kinc_set_update_callback(update, &state);
 
     kinc_g4_vertex_structure_init(&structure);
     kinc_g4_vertex_structure_add(&structure, "pos", KINC_G4_VERTEX_DATA_F32_2X);
@@ -99,8 +124,10 @@ int kickstart(int argc, char **argv)
     memcpy(index, index_data, sizeof(index_data));
     kinc_g4_index_buffer_unlock(&indices, index_len);
 
-    kinc_gamepad_set_axis_callback(axis_callback);
-    kinc_gamepad_set_button_callback(button_callback);
+    kinc_gamepad_set_axis_callback(axis_callback, &state);
+    kinc_gamepad_set_button_callback(button_callback, &state);
+    kinc_keyboard_set_key_down_callback(key_down_callback, &state);
+    kinc_keyboard_set_key_up_callback(key_up_callback, &state);
 
     kinc_start();
 
