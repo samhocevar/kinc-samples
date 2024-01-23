@@ -6,7 +6,6 @@
 #include <kinc/graphics4/texture.h>
 #include <kinc/graphics4/vertexbuffer.h>
 
-#include <kinc/io/filereader.h>
 #include <kinc/system.h>
 
 #include <math.h>

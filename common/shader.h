@@ -1,5 +1,6 @@
 #include <kinc/error.h>
 #include <kinc/graphics4/shader.h>
+#include <kinc/io/filereader.h>
 
 #include <string.h>
 
