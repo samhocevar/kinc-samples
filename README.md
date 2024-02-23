@@ -10,6 +10,8 @@ They have all been tested on the following platforms:
  - Xbox Series S|X
  - Nintendo Switch
 
+Note: instead of hardcoding the path to Kinc, the environment variable `KINC_SDK_PATH` is used.
+
 ## `plasma`
 
 <img src="https://github.com/samhocevar/kinc-samples/raw/main/plasma.png" height="320"/>
